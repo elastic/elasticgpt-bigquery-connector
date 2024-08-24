@@ -1,0 +1,22 @@
+[tool.poetry]
+name = "bq-es-project"
+version = "0.1.0"
+description = ""
+authors = ["Adhish Thite <adhish.thite@elastic.co>"]
+package-mode = false
+
+[tool.poetry.dependencies]
+python = "^3.11"
+google-cloud-bigquery = "^3.25.0"
+elasticsearch = "^8.15.0"
+bigframes = "^1.15.0"
+python-dotenv = "^1.0.1"
+
+[tool.poetry.group.dev.dependencies]
+black = "^24.8.0"
+ipython = "^8.26.0"
+jupyter = "^1.0.0"
+
+[build-system]
+requires = ["poetry-core"]
+build-backend = "poetry.core.masonry.api"
