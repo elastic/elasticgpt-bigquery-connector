@@ -4,14 +4,13 @@ import time
 import logging
 import json
 import hashlib
-from datetime import datetime
 from typing import List, Optional, Dict, Any, Generator
 
 from google.cloud import bigquery
 import bigframes.pandas as bf
 from dotenv import load_dotenv
 from elasticsearch import Elasticsearch
-from elasticsearch.helpers import bulk, parallel_bulk
+from elasticsearch.helpers import bulk
 from langchain_openai import AzureOpenAIEmbeddings
 from langchain_text_splitters import RecursiveCharacterTextSplitter
 from langchain_text_splitters.base import Language
@@ -41,10 +40,14 @@ ES_INDEX_NAME: str = os.getenv("ES_INDEX_NAME", "test-bq-snow-ingest")
 ES_VECTOR_INDEX_NAME: str = os.getenv(
     "ES_VECTOR_INDEX_NAME", "test-bq-embeddings-openai"
 )
-AZURE_EMBEDDING_DEPLOYMENT_NAME: str = os.getenv("AZURE_EMBEDDING_DEPLOYMENT_NAME")
-AZURE_EMBEDDING_API_VERSION: str = os.getenv("AZURE_EMBEDDING_API_VERSION")
-AZURE_OPENAI_API_KEY: str = os.getenv("AZURE_OPENAI_API_KEY")
-AZURE_OPENAI_ENDPOINT: str = os.getenv("AZURE_OPENAI_ENDPOINT")
+AZURE_EMBEDDING_DEPLOYMENT_NAME: Optional[str] = os.getenv(
+    "AZURE_EMBEDDING_DEPLOYMENT_NAME"
+)
+AZURE_EMBEDDING_API_VERSION: Optional[str] = os.getenv("AZURE_EMBEDDING_API_VERSION")
+AZURE_OPENAI_API_KEY: Optional[str] = os.getenv("AZURE_OPENAI_API_KEY")
+AZURE_OPENAI_ENDPOINT: Optional[str] = os.getenv("AZURE_OPENAI_ENDPOINT")
+SNOW_BASE_URL: Optional[str] = os.getenv("SNOW_BASE_URL")
+KB_KNOWLEDGE_BASE_VALUES: str = os.getenv("KB_KNOWLEDGE_BASE_VALUES", "")
 
 logger.info("Configuration retrieved from environment variables")
 
@@ -118,6 +121,9 @@ def query_bigquery() -> bf.DataFrame:
         "workflow_state",
         "sys_updated_on",
         "sys_created_on",
+        "sys_id",
+        "kb_knowledge_base_value",
+        "can_read_user_criteria"
     ]
 
     # Check if required values exist before constructing the query
@@ -125,11 +131,18 @@ def query_bigquery() -> bf.DataFrame:
         raise ValueError("Missing required BigQuery configuration values")
 
     query: str = f"""
-    SELECT {', '.join(columns)}
-    FROM `{GBQ_PROJECT_ID}.{GBQ_DATASET}.{GBQ_TABLE}`
-    WHERE workflow_state = 'published'
-    LIMIT {GBQ_MAX_RESULTS}
+        SELECT      {', '.join(columns)}
+        FROM        `{GBQ_PROJECT_ID}.{GBQ_DATASET}.{GBQ_TABLE}`
+        WHERE       workflow_state = 'published'
+                    AND (
+                        (kb_knowledge_base_value = 'a7e8a78bff0221009b20ffffffffff17')
+                        OR
+                        (kb_knowledge_base_value = 'bb0370019f22120047a2d126c42e7073' AND (can_read_user_criteria IS NULL OR can_read_user_criteria = ''))
+                    )
+        LIMIT       {GBQ_MAX_RESULTS}
     """
+
+    logger.info(f"\nQuery: {query}\n")
 
     df: bf.DataFrame = bf.read_gbq(query)
     logger.info(f"Query executed, retrieved {len(df)} rows")
@@ -145,7 +158,9 @@ def get_elasticsearch_client() -> Elasticsearch:
         Elasticsearch: The Elasticsearch client instance.
     """
     if not hasattr(get_elasticsearch_client, "client"):
-        get_elasticsearch_client.client = Elasticsearch(ES_URL).options(api_key=ES_API_KEY)
+        get_elasticsearch_client.client = Elasticsearch(ES_URL).options(
+            api_key=ES_API_KEY
+        )
         logger.info("Created new Elasticsearch client")
 
     return get_elasticsearch_client.client
@@ -237,10 +252,10 @@ def process_batch(
         if temp_doc["workflow_state"] != "published":
             continue
 
-        article_id = temp_doc["article_id"]
+        article_id: str = temp_doc["article_id"]
         doc_body: str = markdownify(temp_doc["text"])  # Convert HTML to Markdown
-        body_hash = generate_hash(doc_body)
-        existing_body_hash = check_article_id_and_hash(
+        body_hash: str = generate_hash(doc_body)
+        existing_body_hash: Optional[str] = check_article_id_and_hash(
             es_client, ES_VECTOR_INDEX_NAME, article_id
         )
 
@@ -253,11 +268,17 @@ def process_batch(
         if existing_body_hash and existing_body_hash != body_hash:
             delete_embeddings_by_article_id(es_client, ES_VECTOR_INDEX_NAME, article_id)
 
-        metadata: Dict[str, str] = {
-            "article_id": article_id,
-            "number": temp_doc.get("number"),
-            "topic": temp_doc.get("topic"),
-            "sys_updated_on": temp_doc.get("sys_updated_on"),
+        # https://elasticprod.service-now.com/esc?id=kb_article&table=kb_knowledge&sys_id=43f43838476f3d50ffad4438946d43a3&recordUrl=kb_view.do?sysparm_article%3DKB0012917
+        sys_id: Optional[str] = temp_doc.get("sys_id")
+        kb_article_id: Optional[str] = temp_doc.get("number")
+        url = f"{SNOW_BASE_URL}/esc?id=kb_article&table=kb_knowledge&sys_id={sys_id}&recordUrl=kb_view.do?sysparm_article%3D{kb_article_id}"
+
+        metadata: Dict[str, Any] = {
+            "kb_number": temp_doc.get("number"),
+            "article_id": temp_doc.get("number"),
+            "title": temp_doc.get("short_description"),
+            "timestamp": temp_doc.get("sys_updated_on"),
+            "url": url
         }
 
         chunks: List[str] = TEXT_SPLITTER.split_text(doc_body)
@@ -326,6 +347,7 @@ if __name__ == "__main__":
     init()
 
     results: bf.DataFrame = query_bigquery()
+    # exit(0)
 
     es_client = get_elasticsearch_client()
 
