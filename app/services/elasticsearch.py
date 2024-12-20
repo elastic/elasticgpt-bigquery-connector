@@ -1,4 +1,4 @@
-from typing import Optional, Dict, Any
+from typing import Optional
 import bigframes.pandas as bf
 from elasticsearch import Elasticsearch
 from elasticsearch.helpers import bulk
@@ -7,6 +7,7 @@ from config.logging_config import setup_logger
 from config.settings import ES_URL, ES_API_KEY, ES_VECTOR_INDEX_NAME
 
 logger = setup_logger(__name__)
+
 
 def get_elasticsearch_client() -> Elasticsearch:
     """
@@ -23,6 +24,7 @@ def get_elasticsearch_client() -> Elasticsearch:
 
     return get_elasticsearch_client.client
 
+
 def create_elastic_index(es_client: Elasticsearch, index_name: str) -> None:
     """
     Delete the Elasticsearch index if it exists, then create a new one.
@@ -37,6 +39,7 @@ def create_elastic_index(es_client: Elasticsearch, index_name: str) -> None:
 
     es_client.indices.create(index=index_name)
     logger.info(f"✨ Created new Elasticsearch index: {index_name}")
+
 
 def insert_dataframe_to_elasticsearch(
     es_client: Elasticsearch,
@@ -67,6 +70,7 @@ def insert_dataframe_to_elasticsearch(
         f"📥 Inserted {success}/{total_documents} documents into Elasticsearch index: {index_name}"
     )
 
+
 def check_article_id_and_hash(
     client: Elasticsearch, index: str, article_id: str
 ) -> Optional[str]:
@@ -79,11 +83,13 @@ def check_article_id_and_hash(
 
     return None
 
+
 def delete_embeddings_by_article_id(client: Elasticsearch, index: str, article_id: str):
     """Delete all documents for an article with the given ID from the given index."""
     query = {"query": {"term": {"metadata.article_id": article_id}}}
     client.delete_by_query(index=index, body=query)
     logger.info(f"🗑️  Deleted embeddings for article {article_id}")
+
 
 def create_vector_index(client: Elasticsearch):
     """Create a vector index."""
@@ -105,4 +111,4 @@ def create_vector_index(client: Elasticsearch):
                 }
             }
         },
-    ) 
+    )

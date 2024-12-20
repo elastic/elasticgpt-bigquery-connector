@@ -1,8 +1,9 @@
 import logging
 
+
 class ColoredFormatter(logging.Formatter):
     """Custom formatter adding colors to logging levels"""
-    
+
     grey = "\x1b[38;21m"
     blue = "\x1b[38;5;39m"
     yellow = "\x1b[38;5;226m"
@@ -18,13 +19,14 @@ class ColoredFormatter(logging.Formatter):
             logging.INFO: self.blue + fmt + self.reset,
             logging.WARNING: self.yellow + fmt + self.reset,
             logging.ERROR: self.red + fmt + self.reset,
-            logging.CRITICAL: self.bold_red + fmt + self.reset
+            logging.CRITICAL: self.bold_red + fmt + self.reset,
         }
 
     def format(self, record):
         log_fmt = self.FORMATS.get(record.levelno)
         formatter = logging.Formatter(log_fmt)
         return formatter.format(record)
+
 
 def setup_logger(name: str) -> logging.Logger:
     """Set up and return a configured logger instance."""
@@ -40,4 +42,4 @@ def setup_logger(name: str) -> logging.Logger:
     ch.setFormatter(ColoredFormatter(log_format))
     logger.addHandler(ch)
 
-    return logger 
+    return logger

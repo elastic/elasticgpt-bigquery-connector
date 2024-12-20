@@ -25,10 +25,14 @@ OUTPUT_DIR: str = os.getenv("OUTPUT_DIR", "data")
 ES_URL: Optional[str] = os.getenv("ELASTICSEARCH_URL")
 ES_API_KEY: Optional[str] = os.getenv("ELASTICSEARCH_API_KEY")
 ES_INDEX_NAME: str = os.getenv("ES_INDEX_NAME", "test-bq-snow-ingest")
-ES_VECTOR_INDEX_NAME: str = os.getenv("ES_VECTOR_INDEX_NAME", "test-bq-embeddings-openai")
+ES_VECTOR_INDEX_NAME: str = os.getenv(
+    "ES_VECTOR_INDEX_NAME", "test-bq-embeddings-openai"
+)
 
 # Azure OpenAI Settings
-AZURE_EMBEDDING_DEPLOYMENT_NAME: Optional[str] = os.getenv("AZURE_EMBEDDING_DEPLOYMENT_NAME")
+AZURE_EMBEDDING_DEPLOYMENT_NAME: Optional[str] = os.getenv(
+    "AZURE_EMBEDDING_DEPLOYMENT_NAME"
+)
 AZURE_EMBEDDING_API_VERSION: Optional[str] = os.getenv("AZURE_EMBEDDING_API_VERSION")
 AZURE_OPENAI_API_KEY: Optional[str] = os.getenv("AZURE_OPENAI_API_KEY")
 AZURE_OPENAI_ENDPOINT: Optional[str] = os.getenv("AZURE_OPENAI_ENDPOINT")
@@ -41,4 +45,4 @@ KB_KNOWLEDGE_BASE_VALUES: str = os.getenv("KB_KNOWLEDGE_BASE_VALUES", "")
 BATCH_SIZE: int = 20
 QUERY_SIZE: int = 10000
 
-logger.info("Configuration retrieved from environment variables") 
+logger.info("Configuration retrieved from environment variables")

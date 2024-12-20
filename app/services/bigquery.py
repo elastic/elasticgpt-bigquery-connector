@@ -13,6 +13,7 @@ from config.settings import (
 
 logger = setup_logger(__name__)
 
+
 def connect_to_bigquery() -> bigquery.Client:
     """
     Establish a connection to BigQuery.
@@ -23,6 +24,7 @@ def connect_to_bigquery() -> bigquery.Client:
     client: bigquery.Client = bigquery.Client()
     logger.info("🔌 Connected to BigQuery")
     return client
+
 
 def query_bigquery() -> bf.DataFrame:
     """
@@ -55,7 +57,7 @@ def query_bigquery() -> bf.DataFrame:
         "sys_created_on",
         "sys_id",
         "kb_knowledge_base_value",
-        "can_read_user_criteria"
+        "can_read_user_criteria",
     ]
 
     # Check if required values exist before constructing the query
@@ -79,4 +81,4 @@ def query_bigquery() -> bf.DataFrame:
     df: bf.DataFrame = bf.read_gbq(query)
     logger.info(f"✨ Query executed, retrieved {len(df)} rows")
 
-    return df 
+    return df

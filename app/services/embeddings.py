@@ -4,7 +4,6 @@ from langchain_text_splitters import RecursiveCharacterTextSplitter
 from langchain_text_splitters.base import Language
 from langchain_openai import AzureOpenAIEmbeddings
 from elasticsearch import Elasticsearch
-from elasticsearch.helpers import bulk
 
 from config.logging_config import setup_logger
 from config.settings import (
@@ -15,7 +14,10 @@ from config.settings import (
     SNOW_BASE_URL,
     ES_VECTOR_INDEX_NAME,
 )
-from services.elasticsearch import delete_embeddings_by_article_id, check_article_id_and_hash
+from services.elasticsearch import (
+    delete_embeddings_by_article_id,
+    check_article_id_and_hash,
+)
 from utils.helpers import generate_hash
 
 logger = setup_logger(__name__)
@@ -34,6 +36,7 @@ EMBEDDING_MODEL: AzureOpenAIEmbeddings = AzureOpenAIEmbeddings(
     api_key=AZURE_OPENAI_API_KEY,
     azure_endpoint=AZURE_OPENAI_ENDPOINT,
 )
+
 
 def process_batch(
     batch_to_process: List[Dict[str, Any]],
@@ -74,7 +77,7 @@ def process_batch(
             "article_id": temp_doc.get("number"),
             "title": temp_doc.get("short_description"),
             "timestamp": temp_doc.get("sys_updated_on"),
-            "url": url
+            "url": url,
         }
 
         chunks: List[str] = TEXT_SPLITTER.split_text(doc_body)
@@ -104,4 +107,4 @@ def process_batch(
             }
             embedded_docs.append(embedded_doc)
 
-    return embedded_docs, batch_error_chunks, total_chunks_count 
+    return embedded_docs, batch_error_chunks, total_chunks_count
