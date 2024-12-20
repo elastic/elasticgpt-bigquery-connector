@@ -2,8 +2,8 @@ from typing import List
 from google.cloud import bigquery
 import bigframes.pandas as bf
 
-from app.config.logging_config import setup_logger
-from app.config.settings import (
+from config.logging_config import setup_logger
+from config.settings import (
     GBQ_PROJECT_ID,
     GBQ_DATASET,
     GBQ_TABLE,

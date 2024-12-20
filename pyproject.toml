@@ -22,10 +22,6 @@ markdownify = "^0.12"
 [tool.poetry.group.dev.dependencies]
 black = "^24.8.0"
 
-[tool.pyright]
-venvPath = "."
-venv = ".venv"
-
 [build-system]
 requires = ["poetry-core"]
 build-backend = "poetry.core.masonry.api"

@@ -3,22 +3,22 @@ from typing import List, Dict, Any
 from tqdm import tqdm
 from elasticsearch.helpers import bulk
 
-from app.config.logging_config import setup_logger
-from app.config.settings import (
+from config.logging_config import setup_logger
+from config.settings import (
     OUTPUT_DIR,
     ES_INDEX_NAME,
     ES_VECTOR_INDEX_NAME,
     BATCH_SIZE,
 )
-from app.utils.helpers import init, batch_documents
-from app.services.bigquery import query_bigquery
-from app.services.elasticsearch import (
+from utils.helpers import init, batch_documents
+from services.bigquery import query_bigquery
+from services.elasticsearch import (
     get_elasticsearch_client,
     create_elastic_index,
     insert_dataframe_to_elasticsearch,
     create_vector_index,
 )
-from app.services.embeddings import process_batch, EMBEDDING_MODEL
+from services.embeddings import process_batch, EMBEDDING_MODEL
 
 logger = setup_logger(__name__)
 

@@ -1,4 +1,4 @@
-from typing import List, Dict, Any, Tuple
+from typing import List, Dict, Any, Tuple, Optional
 from markdownify import markdownify
 from langchain_text_splitters import RecursiveCharacterTextSplitter
 from langchain_text_splitters.base import Language
@@ -6,8 +6,8 @@ from langchain_openai import AzureOpenAIEmbeddings
 from elasticsearch import Elasticsearch
 from elasticsearch.helpers import bulk
 
-from app.config.logging_config import setup_logger
-from app.config.settings import (
+from config.logging_config import setup_logger
+from config.settings import (
     AZURE_EMBEDDING_DEPLOYMENT_NAME,
     AZURE_EMBEDDING_API_VERSION,
     AZURE_OPENAI_API_KEY,
@@ -15,8 +15,8 @@ from app.config.settings import (
     SNOW_BASE_URL,
     ES_VECTOR_INDEX_NAME,
 )
-from app.services.elasticsearch import delete_embeddings_by_article_id, check_article_id_and_hash
-from app.utils.helpers import generate_hash
+from services.elasticsearch import delete_embeddings_by_article_id, check_article_id_and_hash
+from utils.helpers import generate_hash
 
 logger = setup_logger(__name__)
 

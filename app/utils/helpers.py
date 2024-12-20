@@ -3,7 +3,7 @@ import json
 import hashlib
 from typing import List, Dict, Any, Generator
 
-from app.config.logging_config import setup_logger
+from config.logging_config import setup_logger
 
 logger = setup_logger(__name__)
 

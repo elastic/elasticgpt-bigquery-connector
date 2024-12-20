@@ -3,8 +3,8 @@ import bigframes.pandas as bf
 from elasticsearch import Elasticsearch
 from elasticsearch.helpers import bulk
 
-from app.config.logging_config import setup_logger
-from app.config.settings import ES_URL, ES_API_KEY, ES_VECTOR_INDEX_NAME
+from config.logging_config import setup_logger
+from config.settings import ES_URL, ES_API_KEY, ES_VECTOR_INDEX_NAME
 
 logger = setup_logger(__name__)
 

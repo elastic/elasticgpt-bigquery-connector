@@ -2,7 +2,7 @@ import os
 from typing import Optional
 from dotenv import load_dotenv
 
-from app.config.logging_config import setup_logger
+from config.logging_config import setup_logger
 
 # Set up logger
 logger = setup_logger(__name__)
