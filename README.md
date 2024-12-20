@@ -14,7 +14,7 @@ This pipeline automates the process of:
 ## Project Structure
 
 ```
-bq-es-project/
+.
 ├── app/
 │   ├── config/         # Configuration and settings
 │   ├── services/       # Core service implementations
