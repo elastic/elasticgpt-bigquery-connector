@@ -4,6 +4,7 @@ version = "0.1.0"
 description = ""
 authors = ["Adhish Thite <adhish.thite@elastic.co>"]
 package-mode = false
+readme = "README.md"
 
 [tool.poetry.dependencies]
 python = "^3.11"
@@ -20,9 +21,6 @@ markdownify = "^0.12"
 
 [tool.poetry.group.dev.dependencies]
 black = "^24.8.0"
-ipython = "^8.26.0"
-jupyter = "^1.0.0"
-ruff = "^0.6.2"
 
 [tool.pyright]
 venvPath = "."
