@@ -1,24 +1,32 @@
+import os
+import sys
+from pathlib import Path
+
+# Add the project root directory to Python path
+project_root = str(Path(__file__).parent.parent)
+sys.path.insert(0, project_root)
+
 import time
 from typing import List, Dict, Any
 from tqdm import tqdm
 from elasticsearch.helpers import bulk
 
-from config.logging_config import setup_logger
-from config.settings import (
+from app.config.logging_config import setup_logger
+from app.config.settings import (
     OUTPUT_DIR,
     ES_INDEX_NAME,
     ES_VECTOR_INDEX_NAME,
     BATCH_SIZE,
 )
-from utils.helpers import init, batch_documents
-from services.bigquery import query_bigquery
-from services.elasticsearch import (
+from app.utils.helpers import init, batch_documents
+from app.services.bigquery import query_bigquery
+from app.services.elasticsearch import (
     get_elasticsearch_client,
     create_elastic_index,
     insert_dataframe_to_elasticsearch,
     create_vector_index,
 )
-from services.embeddings import process_batch, EMBEDDING_MODEL
+from app.services.embeddings import process_batch, EMBEDDING_MODEL
 
 logger = setup_logger(__name__)
 
