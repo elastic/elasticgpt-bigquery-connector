@@ -1,4 +1,5 @@
-import os
+# app/main.py
+
 import sys
 from pathlib import Path
 
@@ -32,6 +33,7 @@ logger = setup_logger(__name__)
 
 if __name__ == "__main__":
     logger.info("🚀 Starting main application")
+    
     init(OUTPUT_DIR)
 
     results = query_bigquery()
@@ -47,7 +49,9 @@ if __name__ == "__main__":
     if es_client.indices.exists(index=ES_VECTOR_INDEX_NAME):
         es_client.indices.delete(index=ES_VECTOR_INDEX_NAME)
         logger.info(f"🗑️  Deleted existing vector index: {ES_VECTOR_INDEX_NAME}")
+    
     create_vector_index(es_client)
+    
     logger.info(f"✨ Created new vector index: {ES_VECTOR_INDEX_NAME}")
 
     all_error_chunks: List[Dict[str, Any]] = []
@@ -57,7 +61,7 @@ if __name__ == "__main__":
     total_batches = (len(documents) + BATCH_SIZE - 1) // BATCH_SIZE
 
     for batch in tqdm(
-        batch_documents(documents, BATCH_SIZE), total=total_batches, unit="batch"
+        list(batch_documents(documents, BATCH_SIZE), total=total_batches, unit="batch")
     ):
         batch_embedded_docs, error_chunks, chunks_count = process_batch(
             batch, EMBEDDING_MODEL, es_client
@@ -72,6 +76,7 @@ if __name__ == "__main__":
                 request_timeout=60,
                 raise_on_error=False,
             )
+            
             logger.info(f"📦 Bulk insert: {success} succeeded, {len(failed)} failed")
 
         if error_chunks:
