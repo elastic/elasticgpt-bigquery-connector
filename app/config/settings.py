@@ -16,6 +16,7 @@ GBQ_PROJECT_ID: Optional[str] = os.getenv("GBQ_PROJECT_ID")
 GBQ_LOCATION: Optional[str] = os.getenv("GBQ_LOCATION")
 GBQ_DATASET: Optional[str] = os.getenv("GBQ_DATASET")
 GBQ_TABLE: Optional[str] = os.getenv("GBQ_TABLE")
+GBQ_NEWS_TABLE: Optional[str] = os.getenv("GBQ_NEWS_TABLE")
 GBQ_MAX_RESULTS: int = int(os.getenv("GBQ_MAX_RESULTS", "10"))
 
 # File System Settings

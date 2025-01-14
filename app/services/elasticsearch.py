@@ -45,6 +45,7 @@ def insert_dataframe_to_elasticsearch(
     es_client: Elasticsearch,
     index_name: str,
     dataframe: bf.DataFrame,
+    doc_type: str = "kb",  # 'kb' or 'news'
     chunk_size: int = 500,
 ) -> None:
     """
@@ -54,12 +55,15 @@ def insert_dataframe_to_elasticsearch(
         es_client (Elasticsearch): The Elasticsearch client.
         index_name (str): The name of the index to insert data into.
         dataframe (bf.DataFrame): The DataFrame to be inserted.
+        doc_type (str): The type of document ('kb' or 'news'). Defaults to 'kb'.
         chunk_size (int): The number of documents to insert in each bulk operation. Defaults to 500.
     """
 
     def generate_actions():
         for _, row in dataframe.iterrows():
-            yield {"_index": index_name, "_source": row.to_dict()}
+            doc = row.to_dict()
+            doc["doc_type"] = doc_type  # Add document type
+            yield {"_index": index_name, "_source": doc}
 
     total_documents = len(dataframe)
     success, _ = bulk(
@@ -67,7 +71,7 @@ def insert_dataframe_to_elasticsearch(
     )
 
     logger.info(
-        f"📥 Inserted {success}/{total_documents} documents into Elasticsearch index: {index_name}"
+        f"📥 Inserted {success}/{total_documents} {doc_type} documents into Elasticsearch index: {index_name}"
     )
 
 

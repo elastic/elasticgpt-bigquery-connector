@@ -20,7 +20,7 @@ from app.config.settings import (
     BATCH_SIZE,
 )
 from app.utils.helpers import init, batch_documents
-from app.services.bigquery import query_bigquery
+from app.services.bigquery import query_bigquery, query_news_articles
 from app.services.elasticsearch import (
     get_elasticsearch_client,
     create_elastic_index,
@@ -36,12 +36,20 @@ if __name__ == "__main__":
     
     init(OUTPUT_DIR)
 
-    results = query_bigquery()
+    # Process KB Articles
+    logger.info("📚 Processing KB Articles...")
+    kb_results = query_bigquery()
+    
+    # Process News Articles
+    logger.info("📰 Processing News Articles...")
+    news_results = query_news_articles()
 
     es_client = get_elasticsearch_client()
 
+    # Store raw data in regular index
     create_elastic_index(es_client, ES_INDEX_NAME)
-    insert_dataframe_to_elasticsearch(es_client, ES_INDEX_NAME, results)
+    insert_dataframe_to_elasticsearch(es_client, ES_INDEX_NAME, kb_results, doc_type="kb")
+    insert_dataframe_to_elasticsearch(es_client, ES_INDEX_NAME, news_results, doc_type="news")
 
     logger.info("🔄 Processing and embedding documents...")
 
@@ -51,20 +59,23 @@ if __name__ == "__main__":
         logger.info(f"🗑️  Deleted existing vector index: {ES_VECTOR_INDEX_NAME}")
     
     create_vector_index(es_client)
-    
     logger.info(f"✨ Created new vector index: {ES_VECTOR_INDEX_NAME}")
 
     all_error_chunks: List[Dict[str, Any]] = []
     total_chunks = 0
 
-    documents = results.to_dict("records")
-    total_batches = (len(documents) + BATCH_SIZE - 1) // BATCH_SIZE
+    # Process KB documents
+    kb_documents = kb_results.to_dict("records")
+    total_kb_batches = (len(kb_documents) + BATCH_SIZE - 1) // BATCH_SIZE
 
+    logger.info(f"📚 Processing {len(kb_documents)} KB articles...")
     for batch in tqdm(
-        list(batch_documents(documents, BATCH_SIZE), total=total_batches, unit="batch")
+        list(batch_documents(kb_documents, BATCH_SIZE)), 
+        total=total_kb_batches, 
+        unit="batch"
     ):
         batch_embedded_docs, error_chunks, chunks_count = process_batch(
-            batch, EMBEDDING_MODEL, es_client
+            batch, EMBEDDING_MODEL, es_client, source_type="kb"
         )
         total_chunks += chunks_count
 
@@ -76,8 +87,37 @@ if __name__ == "__main__":
                 request_timeout=60,
                 raise_on_error=False,
             )
-            
-            logger.info(f"📦 Bulk insert: {success} succeeded, {len(failed)} failed")
+            logger.info(f"📦 KB Bulk insert: {success} succeeded, {len(failed)} failed")
+
+        if error_chunks:
+            all_error_chunks.extend(error_chunks)
+
+        time.sleep(5)  # Sleep for 5 seconds to avoid RateLimit and overload
+
+    # Process News documents
+    news_documents = news_results.to_dict("records")
+    total_news_batches = (len(news_documents) + BATCH_SIZE - 1) // BATCH_SIZE
+
+    logger.info(f"📰 Processing {len(news_documents)} News articles...")
+    for batch in tqdm(
+        list(batch_documents(news_documents, BATCH_SIZE)), 
+        total=total_news_batches, 
+        unit="batch"
+    ):
+        batch_embedded_docs, error_chunks, chunks_count = process_batch(
+            batch, EMBEDDING_MODEL, es_client, source_type="news"
+        )
+        total_chunks += chunks_count
+
+        if batch_embedded_docs:
+            success, failed = bulk(
+                es_client,
+                batch_embedded_docs,
+                chunk_size=500,
+                request_timeout=60,
+                raise_on_error=False,
+            )
+            logger.info(f"📦 News Bulk insert: {success} succeeded, {len(failed)} failed")
 
         if error_chunks:
             all_error_chunks.extend(error_chunks)
