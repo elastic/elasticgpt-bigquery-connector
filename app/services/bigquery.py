@@ -77,18 +77,15 @@ def query_bigquery() -> bf.DataFrame:
         kb_values = [val.strip() for val in KB_KNOWLEDGE_BASE_VALUES.split(',') if val.strip()]
     
     # Construct the knowledge base filter
-    kb_filter = ""
-    if kb_values:
-        kb_filters = []
-        for kb_value in kb_values:
-            kb_filters.append(f"kb_knowledge_base_value = '{kb_value}'")
-        kb_filter = f"AND ({' OR '.join(kb_filters)})"
-    
     query: str = f"""
         SELECT      {', '.join(columns)}
         FROM        `{GBQ_PROJECT_ID}.{GBQ_DATASET}.{GBQ_TABLE}`
         WHERE       workflow_state = 'published'
-                    {kb_filter}
+                    AND (
+                        (kb_knowledge_base_value = 'a7e8a78bff0221009b20ffffffffff17')
+                        OR
+                        (kb_knowledge_base_value = 'bb0370019f22120047a2d126c42e7073' AND (can_read_user_criteria IS NULL OR can_read_user_criteria = ''))
+                    )
         LIMIT       {GBQ_MAX_RESULTS}
     """
 
