@@ -1,7 +1,7 @@
 [tool.poetry]
-name = "bq-es-project"
+name = "elasticgpt-bigquery-connector"
 version = "0.1.0"
-description = ""
+description = "This is a connector for ElasticGPT to ingest data from BigQuery. The data is ingested into ElasticGPT's vector database."
 authors = ["Adhish Thite <adhish.thite@elastic.co>"]
 readme = "README.md"
 package-mode = false

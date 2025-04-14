@@ -1,6 +1,9 @@
 # app/main.py
 
-"""
+"""(c) 2024, Elastic Co.
+Author: Adhish Thite <adhish.thite@elastic.co>
+
+
 Script Flow:
 --------------
 1. Set up the project root and update the Python path.

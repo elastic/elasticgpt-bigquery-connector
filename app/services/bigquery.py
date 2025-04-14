@@ -1,3 +1,7 @@
+"""(c) 2024, Elastic Co.
+Author: Adhish Thite <adhish.thite@elastic.co>
+"""
+
 from typing import List
 from google.cloud import bigquery
 import bigframes.pandas as bf
@@ -11,6 +15,7 @@ from config.settings import (
     GBQ_NEWS_TABLE,
     GBQ_MAX_RESULTS,
     GBQ_LOCATION,
+    KB_KNOWLEDGE_BASE_VALUES,
 )
 
 logger = setup_logger(__name__)
@@ -66,15 +71,24 @@ def query_bigquery() -> bf.DataFrame:
     if not all([GBQ_PROJECT_ID, GBQ_DATASET, GBQ_TABLE, GBQ_MAX_RESULTS]):
         raise ValueError("Missing required BigQuery configuration values")
 
+    # Get knowledge base values from settings
+    kb_values = []
+    if KB_KNOWLEDGE_BASE_VALUES:
+        kb_values = [val.strip() for val in KB_KNOWLEDGE_BASE_VALUES.split(',') if val.strip()]
+    
+    # Construct the knowledge base filter
+    kb_filter = ""
+    if kb_values:
+        kb_filters = []
+        for kb_value in kb_values:
+            kb_filters.append(f"kb_knowledge_base_value = '{kb_value}'")
+        kb_filter = f"AND ({' OR '.join(kb_filters)})"
+    
     query: str = f"""
         SELECT      {', '.join(columns)}
         FROM        `{GBQ_PROJECT_ID}.{GBQ_DATASET}.{GBQ_TABLE}`
         WHERE       workflow_state = 'published'
-                    AND (
-                        (kb_knowledge_base_value = 'a7e8a78bff0221009b20ffffffffff17')
-                        OR
-                        (kb_knowledge_base_value = 'bb0370019f22120047a2d126c42e7073' AND (can_read_user_criteria IS NULL OR can_read_user_criteria = ''))
-                    )
+                    {kb_filter}
         LIMIT       {GBQ_MAX_RESULTS}
     """
 

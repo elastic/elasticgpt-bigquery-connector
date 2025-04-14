@@ -1,3 +1,7 @@
+"""(c) 2024, Elastic Co.
+Author: Adhish Thite <adhish.thite@elastic.co>
+"""
+
 import os
 import sys
 

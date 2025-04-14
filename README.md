@@ -2,6 +2,8 @@
 
 A Python-based data pipeline that extracts knowledge base articles from BigQuery, processes them, and indexes them into Elasticsearch with vector embeddings for semantic search capabilities.
 
+[![License](https://img.shields.io/badge/License-Apache_2.0-blue.svg)](LICENSE)
+
 ## Overview
 
 This pipeline automates the process of:
@@ -32,7 +34,7 @@ This pipeline automates the process of:
 ## Prerequisites
 
 - Python 3.11+
-- Poetry for dependency management
+- Poetry for dependency management (Version 1.8)
 - Access to:
   - Google Cloud Platform (BigQuery)
   - Elasticsearch cluster
@@ -145,3 +147,11 @@ The pipeline includes:
 3. Commit your changes (`git commit -m 'Add amazing feature'`)
 4. Push to the branch (`git push origin feature/amazing-feature`)
 5. Open a Pull Request
+
+## Security
+
+If you discover a security vulnerability within this project, please follow the responsible disclosure principles. Please do NOT create publicly viewable issues for suspected security vulnerabilities.
+
+## License
+
+This project is licensed under the Apache License 2.0 - see the [LICENSE](LICENSE) file for details.

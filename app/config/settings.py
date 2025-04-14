@@ -1,3 +1,7 @@
+"""(c) 2024, Elastic Co.
+Author: Adhish Thite <adhish.thite@elastic.co>
+"""
+
 import os
 from typing import Optional
 from dotenv import load_dotenv
@@ -45,5 +49,26 @@ KB_KNOWLEDGE_BASE_VALUES: str = os.getenv("KB_KNOWLEDGE_BASE_VALUES", "")
 # Processing Settings
 BATCH_SIZE: int = 20
 QUERY_SIZE: int = 10000
+
+# Validate critical environment variables
+missing_vars = []
+for var_name, var_value in [
+    ("GBQ_PROJECT_ID", GBQ_PROJECT_ID),
+    ("GBQ_DATASET", GBQ_DATASET),
+    ("GBQ_TABLE", GBQ_TABLE),
+    ("ES_URL", ES_URL),
+    ("ES_API_KEY", ES_API_KEY),
+    ("AZURE_EMBEDDING_DEPLOYMENT_NAME", AZURE_EMBEDDING_DEPLOYMENT_NAME),
+    ("AZURE_OPENAI_API_KEY", AZURE_OPENAI_API_KEY),
+    ("AZURE_OPENAI_ENDPOINT", AZURE_OPENAI_ENDPOINT),
+]:
+    if not var_value:
+        missing_vars.append(var_name)
+
+if missing_vars:
+    logger.warning(f"Missing required environment variables: {', '.join(missing_vars)}")
+    logger.warning("Please check your .env file and ensure all required variables are set.")
+else:
+    logger.info("All required environment variables are set.")
 
 logger.info("Configuration retrieved from environment variables")

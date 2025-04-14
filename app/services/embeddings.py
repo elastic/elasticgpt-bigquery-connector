@@ -1,3 +1,7 @@
+"""(c) 2024, Elastic Co.
+Author: Adhish Thite <adhish.thite@elastic.co>
+"""
+
 from typing import List, Dict, Any, Tuple, Optional
 from markdownify import markdownify
 from langchain_text_splitters import RecursiveCharacterTextSplitter
