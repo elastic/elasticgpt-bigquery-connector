@@ -1,6 +1,6 @@
 # app/main.py
 
-"""(c) 2024, Elastic Co.
+"""(c) 2025, Elastic Co.
 Author: Adhish Thite <adhish.thite@elastic.co>
 
 
