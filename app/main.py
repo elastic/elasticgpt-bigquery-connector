@@ -125,10 +125,9 @@ if __name__ == "__main__":
         # If there are embedded documents, bulk insert them into Elasticsearch
         if batch_embedded_docs:
             success, failed = bulk(
-                es_client,
+                es_client.options(request_timeout=60),
                 batch_embedded_docs,
                 chunk_size=500,
-                request_timeout=60,
                 raise_on_error=False,
             )
             logger.info(f"📦 KB Bulk insert: {success} succeeded, {len(failed)} failed")
@@ -163,10 +162,9 @@ if __name__ == "__main__":
         # Bulk insert embedded documents if available
         if batch_embedded_docs:
             success, failed = bulk(
-                es_client,
+                es_client.options(request_timeout=60),
                 batch_embedded_docs,
                 chunk_size=500,
-                request_timeout=60,
                 raise_on_error=False,
             )
             logger.info(f"📦 News Bulk insert: {success} succeeded, {len(failed)} failed")

@@ -6,6 +6,8 @@ from typing import List
 from google.cloud import bigquery
 import bigframes.pandas as bf
 from datetime import datetime, timedelta
+from google.auth.transport.requests import Request
+from google.auth import default
 
 from config.logging_config import setup_logger
 from config.settings import (
@@ -28,7 +30,7 @@ def connect_to_bigquery() -> bigquery.Client:
     Returns:
         bigquery.Client: A BigQuery client object.
     """
-    client: bigquery.Client = bigquery.Client()
+    client = bigquery.Client(project=GBQ_PROJECT_ID)
     logger.info("🔌 Connected to BigQuery")
     return client
 
@@ -75,7 +77,7 @@ def query_bigquery() -> bf.DataFrame:
     kb_values = []
     if KB_KNOWLEDGE_BASE_VALUES:
         kb_values = [val.strip() for val in KB_KNOWLEDGE_BASE_VALUES.split(',') if val.strip()]
-    
+
     # Construct the knowledge base filter
     query: str = f"""
         SELECT      {', '.join(columns)}
