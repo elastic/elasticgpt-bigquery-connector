@@ -137,8 +137,8 @@ if __name__ == "__main__":
         if error_chunks:
             all_error_chunks.extend(error_chunks)
 
-        # Pause for 5 seconds to avoid rate limiting and potential overload
-        time.sleep(5)
+        # Pause for 2 seconds to avoid rate limiting and potential overload
+        time.sleep(2)
 
     # -------------------------------
     # Processing News Documents

@@ -47,7 +47,7 @@ SNOW_BASE_URL: Optional[str] = os.getenv("SNOW_BASE_URL")
 KB_KNOWLEDGE_BASE_VALUES: str = os.getenv("KB_KNOWLEDGE_BASE_VALUES", "")
 
 # Processing Settings
-BATCH_SIZE: int = 20
+BATCH_SIZE: int = 50
 QUERY_SIZE: int = 10000
 
 # Validate critical environment variables
