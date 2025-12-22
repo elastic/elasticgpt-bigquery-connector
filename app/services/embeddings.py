@@ -64,16 +64,18 @@ def process_batch(
             sys_id: Optional[str] = temp_doc.get("sys_id")
             kb_article_id: Optional[str] = temp_doc.get("number")
             url = f"{SNOW_BASE_URL}/esc?id=kb_article&table=kb_knowledge&sys_id={sys_id}&recordUrl=kb_view.do?sysparm_article%3D{kb_article_id}"
-            
+
         # Handle News articles
         else:
             article_id: str = temp_doc["sys_id"]
             headline: str = temp_doc.get("headline", "")
             subheadline: str = temp_doc.get("subheadline", "")
             rich_content: str = temp_doc.get("rich_content_html", "")
-            
+
             # Combine headline, subheadline, and content
-            doc_body: str = f"# {headline}\n\n{subheadline}\n\n{markdownify(rich_content)}"
+            doc_body: str = (
+                f"# {headline}\n\n{subheadline}\n\n{markdownify(rich_content)}"
+            )
             title: str = headline
             sys_id: Optional[str] = temp_doc.get("sys_id")
             url = f"{SNOW_BASE_URL}/now/nav/ui/classic/params/target/sn_cd_content_news.do%3Fsys_id%3D{sys_id}"

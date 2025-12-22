@@ -6,8 +6,6 @@ from typing import List
 from google.cloud import bigquery
 import bigframes.pandas as bf
 from datetime import datetime, timedelta
-from google.auth.transport.requests import Request
-from google.auth import default
 
 from config.logging_config import setup_logger
 from config.settings import (
@@ -17,7 +15,6 @@ from config.settings import (
     GBQ_NEWS_TABLE,
     GBQ_MAX_RESULTS,
     GBQ_LOCATION,
-    KB_KNOWLEDGE_BASE_VALUES,
 )
 
 logger = setup_logger(__name__)
@@ -73,11 +70,6 @@ def query_bigquery() -> bf.DataFrame:
     if not all([GBQ_PROJECT_ID, GBQ_DATASET, GBQ_TABLE, GBQ_MAX_RESULTS]):
         raise ValueError("Missing required BigQuery configuration values")
 
-    # Get knowledge base values from settings
-    kb_values = []
-    if KB_KNOWLEDGE_BASE_VALUES:
-        kb_values = [val.strip() for val in KB_KNOWLEDGE_BASE_VALUES.split(',') if val.strip()]
-
     # Construct the knowledge base filter
     query: str = f"""
         SELECT      {', '.join(columns)}
@@ -127,11 +119,11 @@ def query_news_articles() -> bf.DataFrame:
         "_fivetran_deleted",
         "thumbnail",
         "rich_content_components",
-        "rich_content_css"
+        "rich_content_css",
     ]
 
     # Calculate date 6 months ago
-    six_months_ago = (datetime.now() - timedelta(days=180)).strftime('%Y-%m-%d')
+    six_months_ago = (datetime.now() - timedelta(days=180)).strftime("%Y-%m-%d")
 
     # Check if required values exist before constructing the query
     if not all([GBQ_PROJECT_ID, GBQ_DATASET, GBQ_NEWS_TABLE]):

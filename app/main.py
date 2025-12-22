@@ -29,28 +29,28 @@ from pathlib import Path
 project_root = str(Path(__file__).parent.parent)
 sys.path.insert(0, project_root)
 
-import time
-from typing import List, Dict, Any
-from tqdm import tqdm  # Progress bar for monitoring batch processing
-from elasticsearch.helpers import bulk  # Bulk helper for Elasticsearch insertion
+import time  # noqa: E402
+from typing import List, Dict, Any  # noqa: E402
+from tqdm import tqdm  # noqa: E402
+from elasticsearch.helpers import bulk  # noqa: E402
 
 # Import project-specific configurations and utility functions
-from app.config.logging_config import setup_logger
-from app.config.settings import (
+from app.config.logging_config import setup_logger  # noqa: E402
+from app.config.settings import (  # noqa: E402
     OUTPUT_DIR,
     ES_INDEX_NAME,
     ES_VECTOR_INDEX_NAME,
     BATCH_SIZE,
 )
-from app.utils.helpers import init, batch_documents
-from app.services.bigquery import query_bigquery, query_news_articles
-from app.services.elasticsearch import (
+from app.utils.helpers import init, batch_documents  # noqa: E402
+from app.services.bigquery import query_bigquery, query_news_articles  # noqa: E402
+from app.services.elasticsearch import (  # noqa: E402
     get_elasticsearch_client,
     create_elastic_index,
     insert_dataframe_to_elasticsearch,
     create_vector_index,
 )
-from app.services.embeddings import process_batch, EMBEDDING_MODEL
+from app.services.embeddings import process_batch, EMBEDDING_MODEL  # noqa: E402
 
 # Set up the logger using the project's logging configuration
 logger = setup_logger(__name__)
@@ -81,8 +81,12 @@ if __name__ == "__main__":
 
     # Create a regular index to store raw data and insert queried documents
     create_elastic_index(es_client, ES_INDEX_NAME)
-    insert_dataframe_to_elasticsearch(es_client, ES_INDEX_NAME, kb_results, doc_type="kb")
-    insert_dataframe_to_elasticsearch(es_client, ES_INDEX_NAME, news_results, doc_type="news")
+    insert_dataframe_to_elasticsearch(
+        es_client, ES_INDEX_NAME, kb_results, doc_type="kb"
+    )
+    insert_dataframe_to_elasticsearch(
+        es_client, ES_INDEX_NAME, news_results, doc_type="news"
+    )
 
     logger.info("🔄 Processing and embedding documents...")
 
@@ -114,7 +118,7 @@ if __name__ == "__main__":
     for batch in tqdm(
         list(batch_documents(kb_documents, BATCH_SIZE)),
         total=total_kb_batches,
-        unit="batch"
+        unit="batch",
     ):
         # Process each batch: generate embeddings and capture errors
         batch_embedded_docs, error_chunks, chunks_count = process_batch(
@@ -151,7 +155,7 @@ if __name__ == "__main__":
     for batch in tqdm(
         list(batch_documents(news_documents, BATCH_SIZE)),
         total=total_news_batches,
-        unit="batch"
+        unit="batch",
     ):
         # Process each batch: generate embeddings and capture errors
         batch_embedded_docs, error_chunks, chunks_count = process_batch(
@@ -167,7 +171,9 @@ if __name__ == "__main__":
                 chunk_size=500,
                 raise_on_error=False,
             )
-            logger.info(f"📦 News Bulk insert: {success} succeeded, {len(failed)} failed")
+            logger.info(
+                f"📦 News Bulk insert: {success} succeeded, {len(failed)} failed"
+            )
 
         # Collect any error chunks from processing
         if error_chunks:

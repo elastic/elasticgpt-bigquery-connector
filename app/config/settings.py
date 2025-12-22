@@ -67,7 +67,9 @@ for var_name, var_value in [
 
 if missing_vars:
     logger.warning(f"Missing required environment variables: {', '.join(missing_vars)}")
-    logger.warning("Please check your .env file and ensure all required variables are set.")
+    logger.warning(
+        "Please check your .env file and ensure all required variables are set."
+    )
 else:
     logger.info("All required environment variables are set.")
 
